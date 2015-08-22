@@ -25,20 +25,26 @@ def print_horizontal_line
   puts "--- --- ---"
 end
 
-def player_turn(number, arr)
+def player_turn(number, board)
   number.to_i
-  arr[number.to_i] = 'X'
-  arr
+  board[number.to_i] = 'X'
+  board
 end
 
-def computer_turn(arr)
+def computer_turn(board)
   pick = ''
-  loop do
-    pick = arr.sample.to_i # letters and 0 will evaluate to 0
-    break if pick != 0
+  if find_critical_square('O', board) # offensive AI
+    pick = find_critical_square('O', board)
+  elsif find_critical_square('X', board) # defensive AI
+    pick = find_critical_square('X', board)
+  else # random pick
+    loop do
+      pick = board.sample.to_i # letters and 0 will evaluate to 0
+      break if pick != 0
+    end
   end
-  arr[pick] = 'O'
-  arr
+  board[pick] = 'O'
+  board
 end
 
 def winner?(player, board)
@@ -58,6 +64,21 @@ def tie?(board)
   end
   true
 end
+
+def find_critical_square(letter, board)
+  WINNING_COMBINATIONS.each do |combo|
+    # if 2 out of the 3 squares are marked, and the third is open
+    if (board[combo[0]] == letter && board[combo[1]] == letter) && board[combo[2]].to_i != 0
+      return combo[2]
+    elsif (board[combo[0]] == letter && board[combo[2]] == letter) && board[combo[1]].to_i != 0
+      return combo[1]
+    elsif (board[combo[1]] == letter && board[combo[2]] == letter) && board[combo[0]].to_i != 0
+      return combo[0]
+    end
+  end
+  false # if there is no critcal square for the given parameters
+end
+
 loop do
   board_state = %w(0 1 2 3 4 5 6 7 8 9)
   prompt("Welcome to Tic-Tac-Toe!")
@@ -77,7 +98,7 @@ loop do
     end
 
     prompt("Computer is thinking...")
-    sleep(2) # dramatic!
+    sleep(1.5) # dramatic!
     board_state = computer_turn(board_state)
     display_board(board_state)
     if winner?('O', board_state) # check for computer win
