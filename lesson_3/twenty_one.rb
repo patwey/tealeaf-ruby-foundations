@@ -12,7 +12,7 @@ end
 def draw_card!(deck)
   suit = rand(0..3)
   value = rand(0..deck[suit].size - 1)
-  card = deck[suit][value]
+  deck[suit][value]
 end
 
 def deal_hand(deck)
@@ -32,6 +32,8 @@ def display_cards(person, hand)
         else
           output += "#{card}"
         end
+      else
+        next
       end
     end
   else
